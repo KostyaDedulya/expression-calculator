@@ -13,15 +13,6 @@ function expressionCalculator(expr) {
         stackNumbers.push(methods[method](a, b));
     }
 
-    let operationReverse = () => {
-        let b = stackNumbers.shift();
-        let a = stackNumbers.shift();
-        let method = stackMethods.shift();
-        if (method === '/' && +b === 0) throw "TypeError: Division by zero.";
-        if (method === '(' || method === ')') throw "ExpressionError: Brackets must be paired";
-        stackNumbers.unshift(methods[method](b, a));
-    }
-
     let methods = {
         '+': (a, b) => +a + +b,
         '-': (a, b) => a - b,
@@ -48,7 +39,7 @@ function expressionCalculator(expr) {
             if (item === '(') bracketsOpen++;
             stackMethods.push(item);
         } else if (item.match(/\)/)) {
-            if(bracketsOpen === 0) throw "ExpressionError: Brackets must be paired";
+            if (bracketsOpen === 0) throw "ExpressionError: Brackets must be paired";
             do {
                 operation();
             } while (!(stackMethods[stackMethods.length - 1] === '('))
@@ -57,15 +48,13 @@ function expressionCalculator(expr) {
         } else {
             do {
                 operation();
-            } while (!(priority[stackMethods[stackMethods.length - 1]] < priority[item]) && stackMethods[0] && stackMethods[stackMethods.length - 1] !== '(')
+            } while ((priority[stackMethods[stackMethods.length - 1]] >= priority[item]) && stackMethods[0] && stackMethods[stackMethods.length - 1] !== '(')
             stackMethods.push(item);
         }
     })
     while (stackMethods[0]) {
-        if (([...new Set(stackMethods)].includes('-') || [...new Set(stackMethods)].includes('+')) && !([...new Set(stackMethods)].includes('*') || [...new Set(stackMethods)].includes('/') || [...new Set(stackMethods)].includes('(') || [...new Set(stackMethods)].includes(')'))) operationReverse()
-        else operation();
+        operation();
     }
-
     return stackNumbers[0];
 }
 
